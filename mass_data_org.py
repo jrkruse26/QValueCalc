@@ -35,7 +35,7 @@ with open('mass_nist.txt') as mass_file:
             mn = 0
             mass = 0
 
-with open('isotopes.csv','w') as csv_file:
+with open('isotopes.csv','w',newline='') as csv_file:
     writer = csv.writer(csv_file, delimiter=',')
     for isotope in isotopes:
         atomic_mass = isotopes[isotope]['Atomic Mass']
