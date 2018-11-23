@@ -30,13 +30,16 @@ with open('mass_nist.txt') as mass_file:
             key = asym + str(mn)
             isotopes[key] = {}
             isotopes[key]['Atomic Mass'] = mass
+            isotopes[key]['Mass Number'] = mn
+            isotopes[key]['Atomic Number'] = an
             an = 0
             asym = 0
             mn = 0
             mass = 0
-
 with open('isotopes.csv','w',newline='') as csv_file:
     writer = csv.writer(csv_file, delimiter=',')
     for isotope in isotopes:
         atomic_mass = isotopes[isotope]['Atomic Mass']
-        writer.writerow([isotope,atomic_mass])
+        mass_number = isotopes[isotope]['Mass Number']
+        atomic_number = isotopes[isotope]['Atomic Number']
+        writer.writerow([isotope, mass_number, atomic_number, atomic_mass])
