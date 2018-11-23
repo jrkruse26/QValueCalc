@@ -7,7 +7,7 @@ with open('isotopes.csv') as csvfile:
   isotopes = {row[0].lower() : [int(row[1]),int(row[2]),float(row[3])] for row in reader}
 print('Welcome to Jordan\'s Nuclear Reaction Calculator!')
 run = True
-
+exceptions = ['n','t','d']
 while run == True:
 
     # define Q value calculation function
@@ -40,6 +40,7 @@ while run == True:
         A_proj = isotopes[proj][0]
         CE = 1.2*((Z_proj*Z_targ)/((A_proj**(1/3))+(A_targ**(1/3))))
         return CE
+
     # prompt for reactants, convert to lowercase, check that inputs exist in data base
     print()
     print('Enter each reactant, separated by a space [ex. O16 n]')
@@ -48,10 +49,12 @@ while run == True:
     reactants = reactant_input.split(' ')
     reactants = [a.lower() for a in reactants]
     for a in reactants:
-        if (a in isotopes) == False and a != 'n':
+        if (a in isotopes or exceptions) == False:
             print('WARNING: Isotope {0} not in database'.format(a))
             input('Press Enter to continue')
             print()
+        elif a == '':
+            reactants.remove(a)
     # prompt for products, convert to lowercase, check that inputs exist in data base
     print('Enter your products separated by a space')
     product_input = input('Products: ')
@@ -59,17 +62,19 @@ while run == True:
     products = product_input.split(' ')
     products = [a.lower() for a in products]
     for a in products:
-        if (a in isotopes) == False and a != 'n':
+        if (a in isotopes or exceptions) == False:
             print('WARNING: Isotope {0} not in database'.format(a))
             input('Press Enter to continue')
             print()
+        elif a == '':
+            products.remove(a)
 
     str_reactants = ''
     for idx,a in enumerate(reactants):
         astr = ''
         for idy, c in enumerate(a):
             cstr = ''
-            if idy == 0 and a != 'n':
+            if idy == 0 and a != 'n' and a != 'n1':
                 cstr = c.upper()
             else:
                 cstr = c
@@ -84,7 +89,7 @@ while run == True:
         astr = ''
         for idy, c in enumerate(a):
             cstr = ''
-            if idy == 0 and a != 'n':
+            if idy == 0 and a != 'n' and a != 'n1':
                 cstr = c.upper()
             else:
                 cstr = c
@@ -98,15 +103,21 @@ while run == True:
     print(str)
     print()
 
-
-    # convert any n inputs to n1
+    # convert any exceptions
     for idx, a in enumerate(reactants):
         if a == 'n':
             reactants[idx] = 'n1'
+        elif a == 'd':
+            reactants[idx] = 'h2'
+        elif a == 't':
+            reactants[idx] = 'h3'
     for idx, a in enumerate(products):
         if a == 'n':
             products[idx] = 'n1'
-
+        elif a == 'd':
+            products[idx] = 'h2'
+        elif a == 't':
+            products[idx] = 'h3'
     # execute calculation, print value
     Q = QCalc(reactants,products)
     Q = round(Q,4)
