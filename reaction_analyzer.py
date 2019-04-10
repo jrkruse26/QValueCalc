@@ -8,39 +8,41 @@ with open('isotopes.csv') as csvfile:
 print('Welcome to Jordan\'s Nuclear Reaction Calculator!')
 run = True
 exceptions = ['n','t','d']
+
+# define Q value calculation function
+def QCalc(reactants, products):
+  reactant_mass = 0
+  for a in reactants:
+    a = str(a)
+    reactant_mass += isotopes[a][2]
+  product_mass = 0
+  for a in products:
+    product_mass += isotopes[a][2]
+  reactant_e = reactant_mass*931.4941
+  product_e = product_mass*931.4941
+  Q = reactant_e - product_e
+  return Q
+
+# define min neutron KE function
+# mc^2 must be >> Q
+def KE_thresh(proj_mass, target_mass, Q):
+    if Q >= 0:
+        return 0
+    else:
+        thresh = -(1+(proj_mass/target_mass))*Q
+        return thresh
+
+#def Coulombic Threshold function
+def CE_thresh(proj,targ):
+    Z_targ = isotopes[targ][1]
+    Z_proj = isotopes[proj][1]
+    A_targ = isotopes[targ][0]
+    A_proj = isotopes[proj][0]
+    CE = 1.2*((Z_proj*Z_targ)/((A_proj**(1/3))+(A_targ**(1/3))))
+    return CE
+
 while run == True:
-
-    # define Q value calculation function
-    def QCalc(reactants, products):
-      reactant_mass = 0
-      for a in reactants:
-        reactant_mass += isotopes[a][2]
-      product_mass = 0
-      for a in products:
-        product_mass += isotopes[a][2]
-      reactant_e = reactant_mass*931.4941
-      product_e = product_mass*931.4941
-      Q = reactant_e - product_e
-      return Q
-
-    # define min neutron KE function
-    # mc^2 must be >> Q
-    def KE_thresh(proj_mass, target_mass, Q):
-        if Q >= 0:
-            return 0
-        else:
-            thresh = -(1+(proj_mass/target_mass))*Q
-            return thresh
-
-    #def Coulombic Threshold function
-    def CE_thresh(proj,targ):
-        Z_targ = isotopes[targ][1]
-        Z_proj = isotopes[proj][1]
-        A_targ = isotopes[targ][0]
-        A_proj = isotopes[proj][0]
-        CE = 1.2*((Z_proj*Z_targ)/((A_proj**(1/3))+(A_targ**(1/3))))
-        return CE
-
+    restart = False
     # prompt for reactants, convert to lowercase, check that inputs exist in data base
     print()
     print('Enter each reactant, separated by a space [ex. O16 n]')
@@ -49,12 +51,16 @@ while run == True:
     reactants = reactant_input.split(' ')
     reactants = [a.lower() for a in reactants]
     for a in reactants:
-        if (a in isotopes or exceptions) == False:
+        if not (a in list(isotopes) or a in exceptions):
+            restart = True
             print('WARNING: Isotope {0} not in database'.format(a))
-            input('Press Enter to continue')
+            input('Press Enter to restart')
             print()
         elif a == '':
             reactants.remove(a)
+    if restart:
+        continue
+    
     # prompt for products, convert to lowercase, check that inputs exist in data base
     print('Enter your products separated by a space')
     product_input = input('Products: ')
@@ -62,12 +68,15 @@ while run == True:
     products = product_input.split(' ')
     products = [a.lower() for a in products]
     for a in products:
-        if (a in isotopes or exceptions) == False:
+        if not (a in list(isotopes) or a in exceptions):
+            restart = True
             print('WARNING: Isotope {0} not in database'.format(a))
-            input('Press Enter to continue')
+            input('Press Enter to restart')
             print()
         elif a == '':
             products.remove(a)
+    if restart:
+        continue
 
     str_reactants = ''
     for idx,a in enumerate(reactants):
@@ -99,8 +108,8 @@ while run == True:
         else:
             str_products += ' + ' + astr
 
-    str = '    ' + str_reactants + ' --> ' + str_products
-    print(str)
+    string = '    ' + str_reactants + ' --> ' + str_products
+    print(string)
     print()
 
     # convert any exceptions
